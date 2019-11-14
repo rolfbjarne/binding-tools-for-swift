@@ -24,7 +24,7 @@ fi
 # Check if we already have a swift package uploaded
 # Bump 'v1' whenever a new package must be uploaded with the same swift hash (it can be bumped back to 1 every time we bump the swift hash if we wish)
 # (for instance if changes to Pack-Man were required to adjust which files are packaged)
-SWIFT_TOOLCHAIN_NAME="SwiftToolchain-v3-$SWIFT_HASH"
+SWIFT_TOOLCHAIN_NAME="SwiftToolchain-v1-$SWIFT_HASH"
 if test -z "$FORCE_SWIFT_BUILD"; then
 	toolchain_url="https://bosstoragemirror.blob.core.windows.net/wrench/swift-o-matic/toolchains/$SWIFT_TOOLCHAIN_NAME.zip"
 	echo "Checking if we already have a toolchain built for $SWIFT_HASH ($toolchain_url)"
@@ -109,7 +109,7 @@ echo "Installing cmake..."
 command -v cmake || brew install cmake
 
 echo "Checking out swift..."
-git clone git@github.com:xamarin/swift.git
+git clone git@github.com:xamarin/binding-tools-for-swift-reflector.git swift
 cd swift
 ls -la
 git checkout --force "$SWIFT_BRANCH"
