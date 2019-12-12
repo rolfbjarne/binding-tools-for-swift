@@ -73,6 +73,9 @@ namespace SwiftRuntimeLibrary {
 			return p;
 		}
 
+		[DllImport ("libobjc.A.dylib")]
+		internal static extern IntPtr objc_lookUpClass (IntPtr utf8Name);
+
 		[DllImport (SwiftCoreConstants.LibSwiftCore)]
 		static extern void swift_unownedRetain (IntPtr p);
 
@@ -351,6 +354,32 @@ namespace SwiftRuntimeLibrary {
 			}
 		}
 
+		[DllImport (SwiftCoreConstants.LibSwiftCore)]
+		static extern IntPtr swift_conformsToProtocol (SwiftMetatype metadata, SwiftNominalTypeDescriptor protocolDescriptor);
+
+		public static SwiftProtocolWitnessTable ConformsToSwiftProtocol (SwiftMetatype metadata, SwiftNominalTypeDescriptor protocolDescriptor)
+		{
+			return new SwiftProtocolWitnessTable (swift_conformsToProtocol (metadata, protocolDescriptor));
+		}
+
+		struct MetadataResponse {
+			public SwiftMetatype Metadata;
+			public nint ResponseState;
+		}
+
+		[DllImport (SwiftCoreConstants.LibSwiftCore)]
+		static extern MetadataResponse swift_getAssociatedTypeWitness (SwiftMetadataRequest request, SwiftProtocolWitnessTable witness,
+			SwiftMetatype conformingType, IntPtr conformanceBaseDescriptor, IntPtr conformanceRequest);
+
+		internal static SwiftMetatype AssociatedTypeMetadataRequest (SwiftMetatype conformingType, SwiftProtocolWitnessTable witness,
+			IntPtr protocolRequirementsBaseDescriptor, SwiftAssociatedTypeDescriptor assocDesc)
+		{
+			var response = swift_getAssociatedTypeWitness (SwiftMetadataRequest.Complete, witness, conformingType,
+				protocolRequirementsBaseDescriptor, assocDesc.Handle);
+			if (response.ResponseState > 1) // 0 and 1 are ok for us
+				throw new SwiftRuntimeException ($"Error retrieving associated type from protocol - returned {response.ResponseState}");
+			return response.Metadata;
+		}
 
 		#region ClosureAdapters
 

@@ -111,6 +111,10 @@
     <Compile Include="BaseProxy.cs" />
     <Compile Include="SwiftMarshal\SwiftTypeNameAttribute.cs" />
     <Compile Include="SwiftTypeRegistry.cs" />
+    <Compile Include="SwiftIteratorProtocol.cs" />
+    <Compile Include="SwiftMarshal\SwiftProtocolConformanceDescriptor.cs" />
+    <Compile Include="SwiftMarshal\SwiftProtocolWitnessTable.cs" />
+    <Compile Include="SwiftMarshal\SwiftAssociatedTypeDescriptor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
