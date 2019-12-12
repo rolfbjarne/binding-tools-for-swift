@@ -116,7 +116,7 @@ git checkout --force "$SWIFT_BRANCH"
 git reset --hard "$SWIFT_HASH"
 
 echo "Updating swift dependencies..."
-./utils/update-checkout --clone-with-ssh --skip-repository swift -j 1 --scheme "$SWIFT_SCHEME"
+./utils/update-checkout --clone --skip-repository swift -j 1 --scheme "$SWIFT_SCHEME"
 
 echo "Building swift (not so swiftly, some patience is required)..."
 ./utils/build-script --clean -R --ios --tvos --watchos --extra-cmake-options=-DSWIFT_DARWIN_ENABLE_STABLE_ABI_BIT:BOOL=TRUE
