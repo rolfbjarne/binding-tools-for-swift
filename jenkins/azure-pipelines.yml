@@ -42,7 +42,7 @@ jobs:
     displayName: 'Build Swift'
 
   - task: AzureFileCopy@3
-    condition: eq ('1', variables.UPLOAD_TOOLCHAIN)
+    condition: eq('1', variables.UPLOAD_TOOLCHAIN)
     displayName: 'Upload toolchain to Azure'
     inputs:
       SourcePath: 'Pack-Man/SwiftToolchain-*.zip'
