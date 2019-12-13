@@ -34,7 +34,23 @@ jobs:
       set -e
       set -x
       ./jenkins/build-swift.sh --publish
+      if test -f Pack-Man/SwiftToolchain-*.zip; then
+        echo "##vso[task.setvariable variable=upload_toolchain]1"
+      else
+        echo "##vso[task.setvariable variable=upload_toolchain]0"
+      fi
     displayName: 'Build Swift'
+
+  - task: AzureFileCopy@3
+    condition: $[ eq ( '1', variables.UPLOAD_TOOLCHAIN ) ]
+    displayName: 'Upload toolchain to Azure'
+    inputs:
+      SourcePath: 'Pack-Man/SwiftToolchain-*.zip'
+      azureSubscription: 'BOSStorageMirror'
+      Destination: 'AzureBlob'
+      storage: 'bosstoragemirror'
+      ContainerName: 'wrench'
+      BlobPrefix: 'binding-tools-for-swift/toolchain'
 
   - script: |
       set -e
