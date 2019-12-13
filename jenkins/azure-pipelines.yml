@@ -34,23 +34,20 @@ jobs:
       set -e
       set -x
       ./jenkins/build-swift.sh --publish
+      mkdir -p ../toolchain
       if test -f Pack-Man/SwiftToolchain-*.zip; then
-        echo "##vso[task.setvariable variable=upload_toolchain]1"
-      else
-        echo "##vso[task.setvariable variable=upload_toolchain]0"
+        cp -c Pack-Man/SwiftToolchain-*.zip ../toolchain
       fi
     displayName: 'Build Swift'
 
-  - task: AzureFileCopy@3
-    condition: eq('1', variables.UPLOAD_TOOLCHAIN)
-    displayName: 'Upload toolchain to Azure'
+  # This will upload the updated toolchain zip (if any) to Azure Devops
+  # Then there's a Release pipeline which will publish the toolchain zip to Azure Blob Storage.
+  - task: PublishBuildArtifacts@1
+    displayName: 'Upload Swift Toolchain'
     inputs:
-      SourcePath: 'Pack-Man/SwiftToolchain-*.zip'
-      azureSubscription: 'BOSStorageMirror'
-      Destination: 'AzureBlob'
-      storage: 'bosstoragemirror'
-      ContainerName: 'wrench'
-      BlobPrefix: 'binding-tools-for-swift/toolchain'
+      PathtoPublish: '../toolchain'
+      ArtifactName: 'toolchain'
+      publishLocation: 'Container'
 
   - script: |
       set -e
@@ -65,7 +62,10 @@ jobs:
       ls -la ../package || true
     displayName: 'Package'
 
+  # This will upload the packages to Azure Devops
+  # Then there's a Release pipeline which will publish the packages to Azure Blob Storage.
   - task: PublishBuildArtifacts@1
+    displayName: 'Upload Packages'
     inputs:
       PathtoPublish: '../package'
       ArtifactName: 'drop'
