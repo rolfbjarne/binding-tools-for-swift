@@ -5,55 +5,58 @@
 trigger:
 - '*'
 
-pool:
-  vmImage: 'macOS-10.14'
+jobs:
+- job: Continuous Integration
+  timeoutInMinutes: 720 # 12 hours (but 6 is max on hosted agents)
+  pool:
+    vmImage: 'macOS-10.14'
 
-steps:
-- script: |
-    set +e # we don't care about errors here
-    set -x
-    pwd
-    env | sort
-    ls -la /Applications
-    system_profiler SPHardwareDataType
-    curl -s https://support-sp.apple.com/sp/product?cc=$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}' | cut -c 9-) | sed 's|.*<configCode>\(.*\)</configCode>.*|\1|'
-    sysctl -a | grep cpu
-    exit 0 # make sure we don't return an error code if the last command failed
-  displayName: 'Environment info'
+  steps:
+  - script: |
+      set +e # we don't care about errors here
+      set -x
+      pwd
+      env | sort
+      ls -la /Applications
+      system_profiler SPHardwareDataType
+      curl -s https://support-sp.apple.com/sp/product?cc=$(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}' | cut -c 9-) | sed 's|.*<configCode>\(.*\)</configCode>.*|\1|'
+      sysctl -a | grep cpu
+      exit 0 # make sure we don't return an error code if the last command failed
+    displayName: 'Environment info'
 
-- script: |
-    set -e
-    set -x
-    ./jenkins/provision-deps.sh
-  displayName: 'Provision dependencies'
+  - script: |
+      set -e
+      set -x
+      ./jenkins/provision-deps.sh
+    displayName: 'Provision dependencies'
 
-- script: |
-    set -e
-    set -x
-    ./jenkins/build-swift.sh --publish
-  displayName: 'Build Swift'
+  - script: |
+      set -e
+      set -x
+      ./jenkins/build-swift.sh --publish
+    displayName: 'Build Swift'
 
-- script: |
-    set -e
-    set -x
-    ./jenkins/build.sh
-  displayName: 'Build'
+  - script: |
+      set -e
+      set -x
+      ./jenkins/build.sh
+    displayName: 'Build'
 
-- script: |
-    set -e
-    set -x
-    ./jenkins/build-package.sh
-    ls -la ../package || true
-  displayName: 'Package'
+  - script: |
+      set -e
+      set -x
+      ./jenkins/build-package.sh
+      ls -la ../package || true
+    displayName: 'Package'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '../package'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '../package'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
 
-- script: |
-    set -e
-    set -x
-    ./jenkins/run-tests.sh
-  displayName: 'Run tests'
+  - script: |
+      set -e
+      set -x
+      ./jenkins/run-tests.sh
+    displayName: 'Run tests'
