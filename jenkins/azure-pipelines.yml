@@ -85,9 +85,11 @@ jobs:
     vmImage: windows-latest
 
   steps:
-  - download: current
-    artifact: toolchain
-    path: '$(System.Workspace)/binding-tools-for-swift/toolchain'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      source: current
+      artifact: toolchain
+      path: '$(System.Workspace)/binding-tools-for-swift/toolchain'
 
   - task: AzureFileCopy@2
     displayName: 'Publish toolchain to Azure'
@@ -127,9 +129,11 @@ jobs:
     vmImage: windows-latest
 
   steps:
-  - download: current
-    artifact: drop
-    path: '$(Pipeline.Workspace)/binding-tools-for-swift/drop'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      source: current
+      artifact: drop
+      path: '$(Pipeline.Workspace)/binding-tools-for-swift/drop'
 
   - task: AzureFileCopy@2
     displayName: 'Publish package to Azure'
