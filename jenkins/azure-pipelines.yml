@@ -41,7 +41,8 @@ jobs:
     displayName: 'Build Swift'
 
   # This will upload the updated toolchain zip (if any) to Azure Devops
-  # Then there's a Release pipeline which will publish the toolchain zip to Azure Blob Storage.
+  # A later job further down will then publish the toolchain to Azure Blob Storage.
+  # This is a two-step process because the task that can publish to Azure Blob Storage only works on Windows :/
   - task: PublishBuildArtifacts@1
     displayName: 'Upload Swift Toolchain'
     inputs:
@@ -63,7 +64,8 @@ jobs:
     displayName: 'Package'
 
   # This will upload the packages to Azure Devops
-  # Then there's a Release pipeline which will publish the packages to Azure Blob Storage.
+  # A later job further down will then publish the package to Azure Blob Storage.
+  # This is a two-step process because the task that can publish to Azure Blob Storage only works on Windows :/
   - task: PublishBuildArtifacts@1
     displayName: 'Upload Packages'
     inputs:
@@ -76,3 +78,84 @@ jobs:
       set -x
       ./jenkins/run-tests.sh
     displayName: 'Run tests'
+
+- job: UploadToolchain
+  dependsOn: ContinuousIntegration
+  pool:
+    vmImage: windows-latest
+
+  steps:
+  - download: current
+    artifact: toolchain
+
+  - task: AzureFileCopy@2
+    displayName: 'Publish toolchain to Azure'
+    inputs:
+      SourcePath: '$(System.DefaultWorkingDirectory)/binding-tools-for-swift/toolchain'
+      azureSubscription: BOSStorageMirror
+      Destination: AzureBlob
+      storage: bosstoragemirror
+      ContainerName: wrench
+      BlobPrefix: 'binding-tools-for-swift/toolchain'
+      outputStorageUri: ToolchainUrl
+      outputStorageContainerSasToken: ToolchainSasToken
+
+  - bash: |
+      set -e
+      set -x
+      ZIPS=(binding-tools-for-swift\toolchain\*.zip)
+      if (( ${#ZIPS[@]} == 1 )); then
+        if test -f ${ZIPS[0]}; then
+          FILE=${ZIPS[0]}
+        else
+          echo "Could not find any zip files to upload"
+          exit 1
+        fi
+      elif (( ${#ZIPS[@]} > 1 )); then
+        echo "More than one zip files!"
+        exit 1
+      fi
+      FILENAME="$(basename "$FILE")"
+      TARGET_URL="https://bosstoragemirror.blob.core.windows.net/wrench/binding-tools-for-swift/toolchain/$FILENAME"
+      ./jenkins/add-commit-status.sh --token=$(github-pat) --hash=$BUILD_SOURCEVERSION --state=success --target-url=$TARGET_URL "--description=$FILENAME" --context=Toolchain-Binding-Tools-For-Swift
+    displayName: 'Add Toolchain as GitHub Status'
+
+- job: UploadPackages
+  dependsOn: ContinuousIntegration
+  pool:
+    vmImage: windows-latest
+
+  steps:
+  - download: current
+    artifact: drop
+
+  - task: AzureFileCopy@2
+    displayName: 'Publish package to Azure'
+    inputs:
+      SourcePath: '$(System.DefaultWorkingDirectory)/binding-tools-for-swift/drop'
+      azureSubscription: BOSStorageMirror
+      Destination: AzureBlob
+      storage: bosstoragemirror
+      ContainerName: wrench
+      BlobPrefix: 'binding-tools-for-swift/$(Build.SourceBranchName)/$(Build.SourceVersion)/$(Build.BuildId)'
+      outputStorageUri: PackageUrl
+      outputStorageContainerSasToken: PackageSasToken
+
+  - bash: |
+      set -x
+      ZIPS=(binding-tools-for-swift\drop\*.zip)
+      if (( ${#ZIPS[@]} == 1 )); then
+        if test -f ${ZIPS[0]}; then
+          FILE=${ZIPS[0]}
+        else
+          echo "Could not find any zip files"
+          exit 1
+        fi
+      elif (( ${#ZIPS[@]} > 1 )); then
+        echo "More than one zip files!"
+        exit 1
+      fi
+      FILENAME="$(basename "$FILE")"
+      TARGET_URL="https://bosstoragemirror.blob.core.windows.net/wrench/binding-tools-for-swift/$BUILD_SOURCEBRANCHNAME/$BUILD_SOURCEVERSION/$BUILD_BUILDID/$FILENAME"
+      ./jenkins/add-commit-status.sh --token=$(github-pat) --hash=$BUILD_SOURCEVERSION --azdo-state=$AGENT_JOBSTATUS --target-url=$TARGET_URL "--description=$FILENAME" --context=PKG-Binding-Tools-For-Swift
+    displayName: 'Add Packages as GitHub Status'
