@@ -33,7 +33,8 @@ jobs:
   - script: |
       set -e
       set -x
-      ./jenkins/build-swift.sh --publish
+      #./jenkins/build-swift.sh --publish
+      echo "Hello Swift" > Pack-Man/SwiftToolchain-foo.zip
       mkdir -p ../toolchain
       if test -f Pack-Man/SwiftToolchain-*.zip; then
         cp -c Pack-Man/SwiftToolchain-*.zip ../toolchain
@@ -53,13 +54,14 @@ jobs:
   - script: |
       set -e
       set -x
-      ./jenkins/build.sh
+      #./jenkins/build.sh
     displayName: 'Build'
 
   - script: |
       set -e
       set -x
-      ./jenkins/build-package.sh
+      #./jenkins/build-package.sh
+      echo "Package Swift" > ../package/package.zip
       ls -la ../package || true
     displayName: 'Package'
 
@@ -76,7 +78,7 @@ jobs:
   - script: |
       set -e
       set -x
-      ./jenkins/run-tests.sh
+      #./jenkins/run-tests.sh
     displayName: 'Run tests'
 
 - job: UploadToolchain
