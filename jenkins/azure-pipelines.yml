@@ -89,12 +89,12 @@ jobs:
     inputs:
       source: current
       artifact: toolchain
-      path: '$(System.Workspace)/binding-tools-for-swift/toolchain'
+      path: 'binding-tools-for-swift/toolchain'
 
   - task: AzureFileCopy@2
     displayName: 'Publish toolchain to Azure'
     inputs:
-      SourcePath: '$(System.Workspace)/binding-tools-for-swift/toolchain'
+      SourcePath: 'binding-tools-for-swift/toolchain'
       azureSubscription: BOSStorageMirror
       Destination: AzureBlob
       storage: bosstoragemirror
@@ -133,12 +133,12 @@ jobs:
     inputs:
       source: current
       artifact: drop
-      path: '$(Pipeline.Workspace)/binding-tools-for-swift/drop'
+      path: 'binding-tools-for-swift/drop'
 
   - task: AzureFileCopy@2
     displayName: 'Publish package to Azure'
     inputs:
-      SourcePath: '$(Pipeline.Workspace)/binding-tools-for-swift/drop'
+      SourcePath: 'binding-tools-for-swift/drop'
       azureSubscription: BOSStorageMirror
       Destination: AzureBlob
       storage: bosstoragemirror
