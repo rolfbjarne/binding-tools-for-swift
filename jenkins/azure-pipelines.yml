@@ -61,6 +61,7 @@ jobs:
       set -e
       set -x
       #./jenkins/build-package.sh
+      mkdir -p ../package
       echo "Package Swift" > ../package/package.zip
       ls -la ../package || true
     displayName: 'Package'
