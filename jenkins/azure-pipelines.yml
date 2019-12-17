@@ -111,7 +111,7 @@ jobs:
       set -x
       ZIPS=(toolchain\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
-        if test -f ${ZIPS[0]}; then
+        if test -f "${ZIPS[0]}"; then
           FILE=${ZIPS[0]}
         else
           echo "Could not find any zip files to upload"
@@ -152,9 +152,9 @@ jobs:
 
   - bash: |
       set -x
-      ZIPS=(drop\*.zip)
+      ZIPS=(drop\\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
-        if test -f ${ZIPS[0]}; then
+        if test -f "${ZIPS[0]}"; then
           FILE=${ZIPS[0]}
         else
           echo "Could not find any zip files"
