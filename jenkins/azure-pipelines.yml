@@ -38,8 +38,12 @@ jobs:
       mkdir -p ../toolchain
       if test -f Pack-Man/SwiftToolchain-*.zip; then
         cp -c Pack-Man/SwiftToolchain-*.zip ../toolchain
+        echo "##vso[task.setvariable variable=uploadtoolchain;isOutput=true]1"
+      else
+        echo "##vso[task.setvariable variable=uploadtoolchain;isOutput=true]0"
       fi
     displayName: 'Build Swift'
+    name: BuildSwift
 
   # This will upload the updated toolchain zip (if any) to Azure Devops
   # A later job further down will then publish the toolchain to Azure Blob Storage.
@@ -84,6 +88,7 @@ jobs:
 
 - job: UploadToolchain
   dependsOn: ContinuousIntegration
+  condition: eq(dependencies.ContinuousIntegration.outputs['BuildSwift.uploadtoolchain'], '1')
   pool:
     vmImage: windows-latest
 
