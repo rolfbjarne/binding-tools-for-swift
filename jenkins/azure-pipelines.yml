@@ -91,12 +91,12 @@ jobs:
     inputs:
       source: current
       artifact: toolchain
-      path: 'binding-tools-for-swift/toolchain'
+      path: 'toolchain'
 
   - task: AzureFileCopy@2
     displayName: 'Publish toolchain to Azure'
     inputs:
-      SourcePath: 'binding-tools-for-swift/toolchain'
+      SourcePath: 'toolchain'
       azureSubscription: BOSStorageMirror
       Destination: AzureBlob
       storage: bosstoragemirror
@@ -108,7 +108,7 @@ jobs:
   - bash: |
       set -e
       set -x
-      ZIPS=(binding-tools-for-swift\toolchain\*.zip)
+      ZIPS=(toolchain\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f ${ZIPS[0]}; then
           FILE=${ZIPS[0]}
@@ -135,12 +135,12 @@ jobs:
     inputs:
       source: current
       artifact: drop
-      path: 'binding-tools-for-swift/drop'
+      path: 'drop'
 
   - task: AzureFileCopy@2
     displayName: 'Publish package to Azure'
     inputs:
-      SourcePath: 'binding-tools-for-swift/drop'
+      SourcePath: 'drop'
       azureSubscription: BOSStorageMirror
       Destination: AzureBlob
       storage: bosstoragemirror
@@ -151,7 +151,7 @@ jobs:
 
   - bash: |
       set -x
-      ZIPS=(binding-tools-for-swift\drop\*.zip)
+      ZIPS=(drop\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f ${ZIPS[0]}; then
           FILE=${ZIPS[0]}
