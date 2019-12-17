@@ -111,7 +111,9 @@ jobs:
       set -x
       pwd
       ls -la
-      ZIPS=(toolchain\*.zip)
+      cd toolchain
+      ZIPS=(*.zip)
+      cd ..
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f "${ZIPS[0]}"; then
           FILE=${ZIPS[0]}
@@ -157,7 +159,7 @@ jobs:
       set -x
       pwd
       ls -la
-      ZIPS=(drop\\*.zip)
+      ZIPS=(drop/*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f "${ZIPS[0]}"; then
           FILE=${ZIPS[0]}
