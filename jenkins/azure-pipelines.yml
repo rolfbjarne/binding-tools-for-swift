@@ -109,6 +109,8 @@ jobs:
   - bash: |
       set -e
       set -x
+      pwd
+      ls -la
       ZIPS=(toolchain\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f "${ZIPS[0]}"; then
@@ -151,7 +153,10 @@ jobs:
       outputStorageContainerSasToken: PackageSasToken
 
   - bash: |
+      set -e
       set -x
+      pwd
+      ls -la
       ZIPS=(drop\\*.zip)
       if (( ${#ZIPS[@]} == 1 )); then
         if test -f "${ZIPS[0]}"; then
